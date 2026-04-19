@@ -150,7 +150,7 @@ function extractTaggedTexts(block: string, tagName: string): string[] {
 }
 
 function findNameFromCells(values: string[]): string | null {
-  return values.find((value) => !/\d/.test(value) && value.split(/\s+/).length >= 2) ?? null;
+  return values.find((value) => !/^\d+$/.test(value) && value.split(/\s+/).length >= 2) ?? null;
 }
 
 function findTopicFromCells(values: string[], name: string | null): string | null {
@@ -163,6 +163,11 @@ function findTopicFromCells(values: string[], name: string | null): string | nul
 }
 
 function findCountFromValues(values: string[]): number | null {
+  const exactMatch = values.find((value) => /^\d+$/.test(value.trim()));
+  if (exactMatch) {
+    return Number(exactMatch);
+  }
+
   for (const value of values) {
     const match = value.match(/\b\d+\b/);
     if (match) {

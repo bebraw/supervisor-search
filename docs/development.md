@@ -91,6 +91,8 @@ npx wrangler vectorize create supervisor-search --dimensions=768 --metric=cosine
 
 The confidential HTML source must stay outside the repository. The local import command reads a snapshot from disk, parses supervisors, generates embeddings through Workers AI, and performs a full-snapshot Vectorize sync.
 
+For parser work and dry-run import testing, the repo also ships a sanitized fixture at `src/supervisors/fixtures/sanitized-supervisor-snapshot.html`. That fixture is safe to commit because it is anonymized and stripped of authenticated page state, but it must not be mistaken for the real operator snapshot.
+
 Required environment variables for the import command:
 
 - `CLOUDFLARE_ACCOUNT_ID`
@@ -108,6 +110,12 @@ Use `--dry-run` to validate parsing and sync counts without mutating Vectorize:
 
 ```bash
 npm run import:supervisors -- --input /absolute/path/to/confidential-supervisors.html --dry-run
+```
+
+You can also smoke-test the importer against the sanitized fixture after setting the same Cloudflare import variables:
+
+```bash
+npm run import:supervisors -- --input ./src/supervisors/fixtures/sanitized-supervisor-snapshot.html --dry-run
 ```
 
 The API token used for imports needs Workers AI write access and Vectorize read/write access.

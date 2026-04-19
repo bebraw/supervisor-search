@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { parseSupervisorSnapshot, planSupervisorImport } from "./import";
 import { buildSupervisorRecord } from "./parser";
@@ -65,6 +66,30 @@ describe("parseSupervisorSnapshot", () => {
     expect(supervisors[0]).toMatchObject({
       name: "Leena Heikkila",
       activeThesisCount: 4,
+    });
+  });
+
+  it("parses the sanitized supervisor snapshot fixture used for import testing", async () => {
+    const html = await readFile(new URL("./fixtures/sanitized-supervisor-snapshot.html", import.meta.url), "utf8");
+    const importedAt = "2026-04-19T12:00:00.000Z";
+
+    const supervisors = parseSupervisorSnapshot(html, importedAt);
+
+    expect(supervisors).toHaveLength(105);
+    expect(supervisors[0]).toMatchObject({
+      name: "Supervisor 01",
+      activeThesisCount: 0,
+      topicArea: "Programming, Algorithms, Evolutionary computation, Computer generated and digital holography",
+      importedAt,
+    });
+    expect(supervisors[77]).toMatchObject({
+      name: "Supervisor 78 (elec)",
+      activeThesisCount: 2,
+    });
+    expect(supervisors.at(-1)).toMatchObject({
+      name: "Supervisor 105 (elec)",
+      activeThesisCount: 0,
+      topicArea: "Coding and information theory, mathematical foundations of ICT",
     });
   });
 });

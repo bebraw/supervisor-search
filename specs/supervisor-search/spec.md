@@ -15,6 +15,7 @@ Supervisor Search helps MSc students discover relevant thesis supervisors withou
 ### Anti-Patterns
 
 - Do not store the confidential HTML snapshot in the repository or upload it through the public app surface.
+- Do not treat committed sanitized fixtures as a substitute for the confidential operator snapshot. They exist for tests and dry-run verification only.
 - Do not bury ranking logic inside route handlers. Matching weights and scoring must stay in dedicated supervisor-domain code.
 - Do not add extra persistence layers such as D1, KV, or Durable Objects for v1 supervisor data.
 
@@ -26,13 +27,14 @@ Supervisor Search helps MSc students discover relevant thesis supervisors withou
 - [ ] `GET /api/search?q=...` returns ordered supervisor search results from either Vectorize or explicit local sample mode.
 - [ ] The import command performs full-snapshot parsing and Vectorize sync from a confidential local HTML file.
 - [ ] Spec and ADR updates land in the same change set as the implementation.
-- [ ] Automated tests cover parsing, auth, ranking, import diffing, and browser search flows.
+- [ ] Automated tests cover parsing, auth, ranking, import diffing, browser search flows, and committed sanitized import fixtures.
 
 ### Regression Guardrails
 
 - The deployed app must only search stored vectors and vector metadata, never the raw confidential HTML.
 - Search ranking must remain tunable in code by editing exported weighting logic, not by changing the import contract.
 - Sample data mode is a local fallback for development and tests only; it must not replace the live Vectorize path in configured environments.
+- Any committed HTML import fixture must remain sanitized, anonymized, and free of authenticated page state or direct staff contact details.
 
 ### Verification
 

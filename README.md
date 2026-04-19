@@ -2,6 +2,8 @@
 
 `supervisor-search` is a Cloudflare Worker application for helping MSc students find a suitable thesis supervisor. A confidential HTML snapshot is parsed locally, embedded, and synced into Vectorize. The deployed app stays lightweight: it serves a basic-auth-protected search UI and a realtime search API that reranks Vectorize candidates in Worker code.
 
+The repository also includes a sanitized fixture at `src/supervisors/fixtures/sanitized-supervisor-snapshot.html` for parser and dry-run import testing. That fixture is anonymized and intentionally stripped down; it is not the confidential source snapshot used for production imports.
+
 The repo vendors ASDLC reference material in `.asdlc/` as local guidance instead of recreating it per project. Repo-specific truth lives in `ARCHITECTURE.md`, `specs/`, and `docs/adrs/`: generated code still needs to match those documents, and passing CI alone is not enough.
 
 Local development in this repo targets macOS. Other platforms may need script and tooling adjustments before the baseline workflow works as documented.
@@ -24,6 +26,7 @@ Local development in this repo targets macOS. Other platforms may need script an
 - Start the Worker with `npm run dev`, then open `http://127.0.0.1:8787`.
 - Rebuild the generated Tailwind stylesheet manually with `npm run build:css` when needed.
 - Import a confidential supervisor snapshot with `npm run import:supervisors -- --input /absolute/path/to/snapshot.html`.
+- Dry-run the importer against the sanitized fixture with `npm run import:supervisors -- --input ./src/supervisors/fixtures/sanitized-supervisor-snapshot.html --dry-run` after configuring the normal Cloudflare import credentials.
 
 ## Verification
 
