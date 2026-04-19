@@ -46,6 +46,35 @@ describe("searchSupervisors", () => {
     expect(response.results[0]?.name).toBe("Tuomas Koski");
   });
 
+  it("expands common CS aliases before creating live embeddings", async () => {
+    const importedAt = "2026-04-19T12:00:00.000Z";
+    const hci = buildSupervisorRecord({
+      name: "Leena Heikkila",
+      topicArea: "Human-computer interaction and accessibility research",
+      activeThesisCount: 2,
+      rawSource: "hci",
+      importedAt,
+    });
+
+    const response = await searchSupervisors("hci", {
+      AI: {
+        async run(_model, input) {
+          expect(input.text).toBe("hci human computer interaction");
+          return { data: [[0.1, 0.9]] };
+        },
+      },
+      SUPERVISOR_SEARCH_INDEX: {
+        async query() {
+          return {
+            matches: [{ id: hci.supervisorId, score: 0.8, metadata: hci }],
+          };
+        },
+      },
+    });
+
+    expect(response.results[0]?.name).toBe("Leena Heikkila");
+  });
+
   it("throws when live bindings are missing", async () => {
     await expect(searchSupervisors("distributed systems", {})).rejects.toThrow("Supervisor search bindings are not configured.");
   });
@@ -104,5 +133,13 @@ describe("searchSampleSupervisors", () => {
       source: "sample",
       results: expect.any(Array),
     });
+  });
+
+  it("matches common CS aliases against expanded topic terms", () => {
+    const hciResponse = searchSampleSupervisors("hci");
+    const llmResponse = searchSampleSupervisors("llm");
+
+    expect(hciResponse.results[0]?.name).toBe("Leena Heikkila");
+    expect(llmResponse.results[0]?.name).toBe("Aino Saarinen");
   });
 });

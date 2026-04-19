@@ -1,3 +1,4 @@
+import { expandSearchAliases } from "./aliases";
 import { createSearchText, tokenizeSearchText } from "./parser";
 import type { RankedSupervisorResult, SupervisorRecord, SupervisorSearchSignals } from "./types";
 
@@ -41,7 +42,7 @@ export function rankSupervisorMatches(
 }
 
 export function calculateTopicOverlap(query: string, supervisor: SupervisorRecord): number {
-  const queryTokens = new Set(tokenizeSearchText(query));
+  const queryTokens = new Set(tokenizeSearchText(expandSearchAliases(query)));
   if (queryTokens.size === 0) {
     return 0;
   }

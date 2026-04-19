@@ -52,4 +52,29 @@ describe("rankSupervisorMatches", () => {
 
     expect(ranked[0]?.name).toBe("Mikael Lahti");
   });
+
+  it("treats common CS aliases as topic matches", () => {
+    const importedAt = "2026-04-19T12:00:00.000Z";
+    const hci = buildSupervisorRecord({
+      name: "Leena Heikkila",
+      topicArea: "Human-computer interaction and accessibility research",
+      activeThesisCount: 4,
+      rawSource: "hci",
+      importedAt,
+    });
+    const systems = buildSupervisorRecord({
+      name: "Tuomas Koski",
+      topicArea: "Distributed systems and cloud infrastructure",
+      activeThesisCount: 1,
+      rawSource: "systems",
+      importedAt,
+    });
+
+    const ranked = rankSupervisorMatches("hci", [
+      { supervisor: systems, vectorSimilarity: 0.72 },
+      { supervisor: hci, vectorSimilarity: 0.7 },
+    ]);
+
+    expect(ranked[0]?.name).toBe("Leena Heikkila");
+  });
 });

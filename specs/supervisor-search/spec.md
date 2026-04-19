@@ -27,6 +27,7 @@ Supervisor Search helps MSc students discover relevant thesis supervisors withou
 - [ ] `GET /` keeps the search surface minimal, with a search field and inline typing hint instead of long explanatory help text.
 - [ ] `GET /` supports both light and dark color schemes without changing the minimal search-first layout.
 - [ ] `GET /api/search?q=...` returns ordered supervisor search results from either Vectorize or explicit local sample mode.
+- [ ] `GET /api/search?q=...` expands common CS aliases such as `HCI`, `LLM`, and `ML` so abbreviated queries still match the underlying topic terms.
 - [ ] The import command performs full-snapshot parsing and Vectorize sync from a confidential local HTML file.
 - [ ] Spec and ADR updates land in the same change set as the implementation.
 - [ ] Automated tests cover parsing, auth, ranking, import diffing, browser search flows, and committed sanitized import fixtures.
@@ -50,6 +51,12 @@ Supervisor Search helps MSc students discover relevant thesis supervisors withou
 - Given: the Worker has valid basic-auth credentials and Vectorize-backed supervisor metadata
 - When: the student searches for a topic such as `distributed systems`
 - Then: `/api/search` returns the best matching supervisors ordered by the hybrid score, and the UI updates without a full reload
+
+**Scenario: Student searches with a common CS abbreviation**
+
+- Given: the Worker has valid supervisor metadata for topics such as human-computer interaction or large language models
+- When: the student searches using an abbreviation such as `HCI` or `LLM`
+- Then: `/api/search` expands that abbreviation during retrieval and reranking so the matching supervisors still rank correctly
 
 **Scenario: Supervisor import refreshes the full snapshot**
 

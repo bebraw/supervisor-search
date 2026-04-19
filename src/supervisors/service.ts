@@ -1,3 +1,4 @@
+import { expandSearchAliases } from "./aliases";
 import { createSearchText, tokenizeSearchText } from "./parser";
 import { rankSupervisorMatches, SUPERVISOR_SEARCH_WEIGHTS } from "./ranking";
 import { sampleSupervisors } from "./sample-data";
@@ -13,6 +14,8 @@ import {
 } from "./types";
 
 export async function searchSupervisors(query: string, env: SupervisorSearchEnv): Promise<SupervisorSearchResponse> {
+  const expandedQuery = expandSearchAliases(query);
+
   if (env.SUPERVISOR_SEARCH_USE_SAMPLE_DATA === "true") {
     return searchSampleSupervisors(query);
   }
@@ -21,7 +24,7 @@ export async function searchSupervisors(query: string, env: SupervisorSearchEnv)
     throw new Error("Supervisor search bindings are not configured.");
   }
 
-  const embedding = await createEmbedding(env.AI, env.SUPERVISOR_SEARCH_EMBEDDING_MODEL ?? DEFAULT_EMBEDDING_MODEL, query);
+  const embedding = await createEmbedding(env.AI, env.SUPERVISOR_SEARCH_EMBEDDING_MODEL ?? DEFAULT_EMBEDDING_MODEL, expandedQuery);
   const vectorResponse = await env.SUPERVISOR_SEARCH_INDEX.query(embedding, {
     topK: DEFAULT_VECTOR_CANDIDATE_LIMIT,
     returnMetadata: "all",
@@ -62,7 +65,7 @@ export async function createEmbedding(aiBinding: NonNullable<SupervisorSearchEnv
 }
 
 export function searchSampleSupervisors(query: string): SupervisorSearchResponse {
-  const queryTokens = new Set(tokenizeSearchText(query));
+  const queryTokens = new Set(tokenizeSearchText(expandSearchAliases(query)));
   const candidates = sampleSupervisors.map((supervisor) => ({
     supervisor,
     vectorSimilarity: calculateSampleSimilarity(queryTokens, supervisor),
