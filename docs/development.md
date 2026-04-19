@@ -126,6 +126,12 @@ Use `--dry-run` to validate parsing and sync counts without mutating Vectorize:
 npm run import:supervisors -- --input /absolute/path/to/confidential-supervisors.html --dry-run
 ```
 
+If Cloudflare returns an unexpected error, rerun with `--debug` to print the resolved import configuration, request path, HTTP status, and response-body summary for the failing API call:
+
+```bash
+npm run import:supervisors -- --input /absolute/path/to/confidential-supervisors.html --dry-run --debug
+```
+
 You can also smoke-test the importer against the sanitized fixture after setting the same Cloudflare import variables:
 
 ```bash

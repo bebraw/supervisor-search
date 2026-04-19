@@ -20,6 +20,7 @@ interface IndexInfoResponse {
 
 const VECTORIZE_PAGE_SIZE = 1_000;
 const EMBEDDING_BATCH_SIZE = 100;
+const CLOUDLFARE_ERROR_BODY_LIMIT = 500;
 
 async function main(): Promise<void> {
   const { values } = parseArgs({
@@ -32,6 +33,7 @@ async function main(): Promise<void> {
       "minimum-supervisor-count": { type: "string" },
       "max-delete-ratio": { type: "string" },
       "allow-large-delete": { type: "boolean" },
+      debug: { type: "boolean" },
       "dry-run": { type: "boolean" },
     },
     allowPositionals: false,
@@ -45,6 +47,7 @@ async function main(): Promise<void> {
   const minimumSupervisorCount = parseIntegerOption(values["minimum-supervisor-count"], "--minimum-supervisor-count");
   const maxDeleteRatio = parseRatioOption(values["max-delete-ratio"], "--max-delete-ratio");
   const allowLargeDelete = values["allow-large-delete"] ?? false;
+  const debug = values.debug ?? false;
   const dryRun = values["dry-run"] ?? false;
 
   if (!inputPath) {
@@ -67,11 +70,26 @@ async function main(): Promise<void> {
   const importedAt = new Date().toISOString();
   const supervisors = parseSupervisorSnapshot(html, importedAt);
 
+  debugLog(debug, "Import configuration", {
+    inputPath,
+    dryRun,
+    accountId,
+    indexName,
+    model,
+    minimumSupervisorCount,
+    maxDeleteRatio,
+    allowLargeDelete,
+  });
+  debugLog(debug, "Parsed supervisors", {
+    importedAt,
+    supervisorCount: supervisors.length,
+  });
+
   if (supervisors.length === 0) {
     throw new Error("No supervisors were parsed from the input HTML. Update the parser adapter before importing.");
   }
 
-  const existingIds = await listExistingVectorIds({ accountId, apiToken, indexName });
+  const existingIds = await listExistingVectorIds({ accountId, apiToken, indexName, debug });
   validateSupervisorImport(supervisors, existingIds, [], {
     minimumSupervisorCount,
   });
@@ -79,17 +97,23 @@ async function main(): Promise<void> {
   const embeddings = await createEmbeddings({
     accountId,
     apiToken,
+    debug,
     model,
     texts: supervisors.map((supervisor) => supervisor.searchText),
   });
 
   const importPlan = planSupervisorImport(supervisors, embeddings, existingIds);
+  debugLog(debug, "Import plan", {
+    upsertCount: importPlan.vectors.length,
+    deleteCount: importPlan.idsToDelete.length,
+    sampleIdsToDelete: importPlan.idsToDelete.slice(0, 10),
+  });
   validateSupervisorImport(supervisors, existingIds, importPlan.idsToDelete, {
     minimumSupervisorCount,
     maxDeleteRatio,
     allowLargeDelete,
   });
-  const indexInfo = await getIndexInfo({ accountId, apiToken, indexName });
+  const indexInfo = await getIndexInfo({ accountId, apiToken, indexName, debug });
 
   if (typeof indexInfo.dimensions === "number" && importPlan.vectors[0] && importPlan.vectors[0].values.length !== indexInfo.dimensions) {
     throw new Error(
@@ -101,6 +125,7 @@ async function main(): Promise<void> {
     await upsertVectors({
       accountId,
       apiToken,
+      debug,
       indexName,
       ndjson: importPlan.vectorNdjson,
     });
@@ -109,6 +134,7 @@ async function main(): Promise<void> {
       await deleteVectors({
         accountId,
         apiToken,
+        debug,
         indexName,
         ids: importPlan.idsToDelete,
       });
@@ -132,15 +158,28 @@ async function main(): Promise<void> {
   );
 }
 
-async function createEmbeddings(input: { accountId: string; apiToken: string; model: string; texts: string[] }): Promise<number[][]> {
+async function createEmbeddings(input: {
+  accountId: string;
+  apiToken: string;
+  debug: boolean;
+  model: string;
+  texts: string[];
+}): Promise<number[][]> {
   const embeddings: number[][] = [];
 
   for (let index = 0; index < input.texts.length; index += EMBEDDING_BATCH_SIZE) {
     const batch = input.texts.slice(index, index + EMBEDDING_BATCH_SIZE);
+    debugLog(input.debug, "Embedding batch", {
+      batchStart: index,
+      batchSize: batch.length,
+      model: input.model,
+    });
     const response = await callCloudflareApi<{ data?: number[][] } | { result?: { data?: number[][] } }>({
       accountId: input.accountId,
       apiToken: input.apiToken,
+      debug: input.debug,
       method: "POST",
+      operation: "create embeddings",
       path: `/ai/run/${input.model}`,
       body: JSON.stringify({ text: batch }),
       headers: {
@@ -161,7 +200,7 @@ async function createEmbeddings(input: { accountId: string; apiToken: string; mo
   return embeddings;
 }
 
-async function listExistingVectorIds(input: { accountId: string; apiToken: string; indexName: string }): Promise<string[]> {
+async function listExistingVectorIds(input: { accountId: string; apiToken: string; debug: boolean; indexName: string }): Promise<string[]> {
   const ids: string[] = [];
   let cursor: string | null | undefined;
 
@@ -174,7 +213,9 @@ async function listExistingVectorIds(input: { accountId: string; apiToken: strin
     const response = await callCloudflareApi<VectorListResponse>({
       accountId: input.accountId,
       apiToken: input.apiToken,
+      debug: input.debug,
       method: "GET",
+      operation: "list existing vector ids",
       path: `/vectorize/v2/indexes/${input.indexName}/list?${query.toString()}`,
     });
 
@@ -182,23 +223,36 @@ async function listExistingVectorIds(input: { accountId: string; apiToken: strin
     cursor = response.nextCursor;
   } while (cursor);
 
+  debugLog(input.debug, "Existing index state", {
+    existingIdCount: ids.length,
+  });
   return ids;
 }
 
-async function getIndexInfo(input: { accountId: string; apiToken: string; indexName: string }): Promise<IndexInfoResponse> {
+async function getIndexInfo(input: { accountId: string; apiToken: string; debug: boolean; indexName: string }): Promise<IndexInfoResponse> {
   return await callCloudflareApi<IndexInfoResponse>({
     accountId: input.accountId,
     apiToken: input.apiToken,
+    debug: input.debug,
     method: "GET",
+    operation: "get index info",
     path: `/vectorize/v2/indexes/${input.indexName}/info`,
   });
 }
 
-async function upsertVectors(input: { accountId: string; apiToken: string; indexName: string; ndjson: string }): Promise<void> {
+async function upsertVectors(input: {
+  accountId: string;
+  apiToken: string;
+  debug: boolean;
+  indexName: string;
+  ndjson: string;
+}): Promise<void> {
   await callCloudflareApi<{ mutationId?: string }>({
     accountId: input.accountId,
     apiToken: input.apiToken,
+    debug: input.debug,
     method: "POST",
+    operation: "upsert vectors",
     path: `/vectorize/v2/indexes/${input.indexName}/upsert`,
     body: input.ndjson,
     headers: {
@@ -207,11 +261,19 @@ async function upsertVectors(input: { accountId: string; apiToken: string; index
   });
 }
 
-async function deleteVectors(input: { accountId: string; apiToken: string; indexName: string; ids: string[] }): Promise<void> {
+async function deleteVectors(input: {
+  accountId: string;
+  apiToken: string;
+  debug: boolean;
+  indexName: string;
+  ids: string[];
+}): Promise<void> {
   await callCloudflareApi<{ mutationId?: string }>({
     accountId: input.accountId,
     apiToken: input.apiToken,
+    debug: input.debug,
     method: "POST",
+    operation: "delete vectors",
     path: `/vectorize/v2/indexes/${input.indexName}/delete_by_ids`,
     body: JSON.stringify({ ids: input.ids }),
     headers: {
@@ -223,11 +285,18 @@ async function deleteVectors(input: { accountId: string; apiToken: string; index
 async function callCloudflareApi<T>(input: {
   accountId: string;
   apiToken: string;
+  debug: boolean;
   method: string;
+  operation: string;
   path: string;
   body?: BodyInit;
   headers?: Record<string, string>;
 }): Promise<T> {
+  debugLog(input.debug, "Cloudflare request", {
+    operation: input.operation,
+    method: input.method,
+    path: input.path,
+  });
   const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${input.accountId}${input.path}`, {
     method: input.method,
     body: input.body,
@@ -237,17 +306,28 @@ async function callCloudflareApi<T>(input: {
     },
   });
 
-  const payload = (await response.json()) as CloudflareEnvelope<T>;
+  const rawBody = await response.text();
+  const payload = tryParseJson(rawBody) as CloudflareEnvelope<T> | null;
 
-  if (!response.ok || !payload.success) {
+  if (!response.ok || !payload?.success) {
     const message =
-      payload.errors
+      payload?.errors
         ?.map((error) => error.message)
         .filter(Boolean)
-        .join("; ") || response.statusText;
-    throw new Error(`Cloudflare API request failed: ${message}`);
+        .join("; ") ||
+      response.statusText ||
+      "Unknown Cloudflare API failure";
+    const responseBodyPreview = summarizeBody(rawBody);
+    throw new Error(
+      `Cloudflare API request failed during ${input.operation}: ${input.method} ${input.path} -> ` +
+        `${response.status} ${response.statusText}. ${message}. Response body: ${responseBodyPreview}`,
+    );
   }
 
+  debugLog(input.debug, "Cloudflare response", {
+    operation: input.operation,
+    status: response.status,
+  });
   return payload.result;
 }
 
@@ -287,6 +367,39 @@ function parseRatioOption(rawValue: string | undefined, flagName: string): numbe
 
 void main().catch((error) => {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(message);
+  if (error instanceof Error && error.stack) {
+    console.error(error.stack);
+  } else {
+    console.error(message);
+  }
   process.exitCode = 1;
 });
+
+function debugLog(enabled: boolean, label: string, details: Record<string, unknown>): void {
+  if (!enabled) {
+    return;
+  }
+
+  console.error(`[import:supervisors:debug] ${label}: ${JSON.stringify(details, null, 2)}`);
+}
+
+function tryParseJson(rawBody: string): unknown {
+  if (!rawBody) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawBody);
+  } catch {
+    return null;
+  }
+}
+
+function summarizeBody(rawBody: string): string {
+  const compactBody = rawBody.replace(/\s+/g, " ").trim();
+  if (!compactBody) {
+    return "<empty>";
+  }
+
+  return compactBody.length > CLOUDLFARE_ERROR_BODY_LIMIT ? `${compactBody.slice(0, CLOUDLFARE_ERROR_BODY_LIMIT)}...` : compactBody;
+}
