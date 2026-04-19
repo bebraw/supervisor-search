@@ -38,6 +38,7 @@ Supervisor Search helps MSc students discover relevant thesis supervisors withou
 - Search ranking must remain tunable in code by editing exported weighting logic, not by changing the import contract.
 - Sample data mode is a local fallback for development and tests only; it must not replace the live Vectorize path in configured environments.
 - The import command must stop before mutating Vectorize when the parsed snapshot drops suspiciously below the current index size or when the delete set is abnormally large, unless the operator explicitly overrides that safety check.
+- HTML responses must ship with restrictive browser security headers, and client-side search code must load from a same-origin script asset so the CSP can keep `script-src 'self'`.
 - Any committed HTML import fixture must remain sanitized, anonymized, and free of authenticated page state or direct staff contact details.
 
 ### Verification

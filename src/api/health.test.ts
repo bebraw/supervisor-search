@@ -6,6 +6,7 @@ describe("createHealthResponse", () => {
     const response = createHealthResponse(["/", "/api/search", "/api/health"]);
 
     expect(response.status).toBe(200);
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
     await expect(response.json()).resolves.toEqual({
       ok: true,
       name: "supervisor-search-worker",

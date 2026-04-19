@@ -4,8 +4,9 @@ import { appRoutes } from "./app-routes";
 import { ensureAuthorizedRequest } from "./supervisors/auth";
 import type { SupervisorSearchEnv } from "./supervisors/types";
 import { renderHomePage } from "./views/home";
+import { renderHomeScript } from "./views/home-script";
 import { renderNotFoundPage } from "./views/not-found";
-import { cssResponse, htmlResponse } from "./views/shared";
+import { cssResponse, htmlResponse, javascriptResponse } from "./views/shared";
 
 export default {
   async fetch(request: Request, env: SupervisorSearchEnv): Promise<Response> {
@@ -18,6 +19,10 @@ export async function handleRequest(request: Request, env: SupervisorSearchEnv):
 
   if (url.pathname === "/styles.css") {
     return cssResponse(await loadStylesheet());
+  }
+
+  if (url.pathname === "/app.js") {
+    return javascriptResponse(renderHomeScript());
   }
 
   if (url.pathname === "/api/health") {

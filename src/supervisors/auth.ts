@@ -1,4 +1,5 @@
 import type { SupervisorSearchEnv } from "./types.ts";
+import { textResponse } from "../views/shared";
 
 const basicAuthRealm = 'Basic realm="Supervisor Search", charset="UTF-8"';
 
@@ -7,12 +8,8 @@ export function ensureAuthorizedRequest(request: Request, env: SupervisorSearchE
   const expectedPassword = env.SUPERVISOR_SEARCH_BASIC_AUTH_PASSWORD;
 
   if (!expectedUsername || !expectedPassword) {
-    return new Response("Supervisor search credentials are not configured.", {
+    return textResponse("Supervisor search credentials are not configured.", {
       status: 503,
-      headers: {
-        "content-type": "text/plain; charset=utf-8",
-        "cache-control": "no-store",
-      },
     });
   }
 
@@ -47,11 +44,9 @@ function readBasicAuthHeader(headerValue: string | null): { username: string; pa
 }
 
 function createUnauthorizedResponse(): Response {
-  return new Response("Authentication required.", {
+  return textResponse("Authentication required.", {
     status: 401,
     headers: {
-      "cache-control": "no-store",
-      "content-type": "text/plain; charset=utf-8",
       "www-authenticate": basicAuthRealm,
     },
   });

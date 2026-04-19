@@ -15,6 +15,7 @@ describe("ensureAuthorizedRequest", () => {
     const response = ensureAuthorizedRequest(new Request("http://example.com/"), {});
 
     expect(response?.status).toBe(503);
+    expect(response?.headers.get("x-content-type-options")).toBe("nosniff");
   });
 
   it("returns a challenge for missing credentials", async () => {
@@ -22,6 +23,7 @@ describe("ensureAuthorizedRequest", () => {
 
     expect(response?.status).toBe(401);
     expect(response?.headers.get("www-authenticate")).toContain("Basic");
+    expect(response?.headers.get("x-frame-options")).toBe("DENY");
   });
 
   it("rejects malformed credentials", () => {

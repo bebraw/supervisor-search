@@ -1,5 +1,6 @@
 import { MINIMUM_QUERY_LENGTH, type SupervisorSearchEnv } from "../supervisors/types";
 import { searchSupervisors } from "../supervisors/service";
+import { jsonResponse } from "../views/shared";
 
 const genericSearchErrorMessage = "Supervisor search is currently unavailable.";
 
@@ -7,7 +8,7 @@ export async function createSearchResponse(request: Request, env: SupervisorSear
   const query = new URL(request.url).searchParams.get("q")?.trim() ?? "";
 
   if (query.length < MINIMUM_QUERY_LENGTH) {
-    return Response.json(
+    return jsonResponse(
       {
         ok: false,
         error: `Search queries must be at least ${MINIMUM_QUERY_LENGTH} characters long.`,
@@ -19,11 +20,11 @@ export async function createSearchResponse(request: Request, env: SupervisorSear
 
   try {
     const response = await searchSupervisors(query, env);
-    return Response.json(response);
+    return jsonResponse(response);
   } catch (error) {
     console.error("Supervisor search failed.", error);
 
-    return Response.json(
+    return jsonResponse(
       {
         ok: false,
         error: genericSearchErrorMessage,

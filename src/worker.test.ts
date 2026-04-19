@@ -34,6 +34,7 @@ describe("worker", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/html");
+    expect(response.headers.get("content-security-policy")).toContain("script-src 'self'");
 
     const body = await response.text();
     expect(body).toContain("Find an MSc Supervisor");
@@ -101,5 +102,14 @@ describe("worker", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/css");
     await expect(response.text()).resolves.toContain("--color-app-canvas:#fff");
+  });
+
+  it("serves the external app script with security headers", async () => {
+    const response = await handleRequest(new Request("http://example.com/app.js"), testEnv);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("application/javascript");
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    await expect(response.text()).resolves.toContain('fetch("/api/search?q=" + encodeURIComponent(query)');
   });
 });

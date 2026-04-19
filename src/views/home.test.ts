@@ -8,5 +8,6 @@ describe("renderHomePage", () => {
     expect(html).toContain("Find an MSc Supervisor");
     expect(html).toContain("Type a topic, method, or research area");
     expect(html).toContain('rel="stylesheet" href="/styles.css"');
+    expect(html).toContain('<script src="/app.js" defer></script>');
   });
 });
