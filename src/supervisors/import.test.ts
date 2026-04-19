@@ -105,9 +105,7 @@ describe("validateSupervisorImport", () => {
       importedAt,
     });
 
-    expect(() =>
-      validateSupervisorImport([aino], ["one", "two", "three", "four", "five"], [], {}),
-    ).toThrow("below the safety floor");
+    expect(() => validateSupervisorImport([aino], ["one", "two", "three", "four", "five"], [], {})).toThrow("below the safety floor");
   });
 
   it("rejects large delete sets unless explicitly allowed", () => {
@@ -143,9 +141,7 @@ describe("validateSupervisorImport", () => {
       }),
     ];
 
-    expect(() =>
-      validateSupervisorImport(supervisors, ["1", "2", "3", "4", "5"], ["2", "3"], {}),
-    ).toThrow("above the safety threshold");
+    expect(() => validateSupervisorImport(supervisors, ["1", "2", "3", "4", "5"], ["2", "3"], {})).toThrow("above the safety threshold");
   });
 
   it("allows explicit overrides for confirmed large changes", () => {

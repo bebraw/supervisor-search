@@ -56,8 +56,7 @@ export function validateSupervisorImport(
   idsToDelete: string[],
   guardrails: SupervisorImportGuardrails = {},
 ): void {
-  const inferredMinimumSupervisorCount =
-    guardrails.minimumSupervisorCount ?? inferMinimumSupervisorCount(existingIds.length);
+  const inferredMinimumSupervisorCount = guardrails.minimumSupervisorCount ?? inferMinimumSupervisorCount(existingIds.length);
 
   if (inferredMinimumSupervisorCount > 0 && supervisors.length < inferredMinimumSupervisorCount) {
     throw new Error(
