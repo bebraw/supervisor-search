@@ -3,7 +3,15 @@
   "private": true,
   "packageManager": "npm@11.12.1",
   "engines": {
-    "node": "24.14.1"
+    "node": "24.14.1",
+    "npm": "11.12.1"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "version": "11.12.1",
+      "onFail": "error"
+    }
   },
   "scripts": {
     "build:css": "mkdir -p ./.generated && tailwindcss -i ./src/tailwind-input.css -o ./.generated/styles.css --minify",
