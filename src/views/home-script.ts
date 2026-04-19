@@ -36,18 +36,18 @@ function renderResults(results) {
 
   for (const result of results) {
     const item = document.createElement("li");
-    item.className = "py-5 sm:py-6";
+    item.className = "border-t border-app-line py-6 first:border-t-0 sm:py-7";
 
     const title = document.createElement("h3");
-    title.className = "text-xl font-semibold tracking-[-0.03em] text-app-text sm:text-2xl";
+    title.className = "text-[1.6rem] leading-tight font-semibold tracking-[-0.045em] text-app-text sm:text-[2rem]";
     title.textContent = result.name;
 
     const topic = document.createElement("p");
-    topic.className = "mt-2 max-w-3xl text-base leading-7 text-app-text-soft";
+    topic.className = "mt-3 max-w-3xl text-base leading-7 text-app-text-soft sm:text-[1.05rem]";
     topic.textContent = result.topicArea;
 
     const meta = document.createElement("p");
-    meta.className = "mt-3 text-sm text-app-text-soft";
+    meta.className = "mt-4 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-app-accent";
     meta.textContent = result.activeThesisCount + (result.activeThesisCount === 1 ? " active thesis" : " active theses");
 
     item.append(title, topic, meta);

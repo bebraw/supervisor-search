@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-app-canvas: #ffffff;
-  --color-app-surface: #ffffff;
+  --color-app-canvas: #f7fafe;
+  --color-app-surface: #edf3fb;
   --color-app-text: #10253f;
   --color-app-text-soft: #61758d;
   --color-app-accent: #005bbb;
@@ -12,7 +12,7 @@
   --color-app-ink: #10253f;
   --color-app-ink-text: #eef5fd;
 
-  --shadow-panel: 0 0 #0000;
+  --shadow-panel: 0 28px 64px -36px rgb(16 37 63 / 0.28);
 }
 
 /*
@@ -56,16 +56,17 @@
     }
 
     :root {
-      --color-app-canvas: #0d1724;
-      --color-app-surface: #0d1724;
+      --color-app-canvas: #0c1622;
+      --color-app-surface: #132235;
       --color-app-text: #ecf3fb;
       --color-app-text-soft: #9fb5cc;
       --color-app-accent: #6ab2ff;
       --color-app-accent-strong: #8fc5ff;
       --color-app-accent-ghost: rgb(106 178 255 / 0.2);
       --color-app-line: rgb(236 243 251 / 0.12);
-      --color-app-ink: #0d1724;
+      --color-app-ink: #0c1622;
       --color-app-ink-text: #ecf3fb;
+      --shadow-panel: 0 28px 64px -36px rgb(0 0 0 / 0.5);
     }
 
     ::selection {
