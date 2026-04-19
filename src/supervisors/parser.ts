@@ -15,6 +15,11 @@ interface CandidateDraft {
   rawSource: string;
 }
 
+const MAX_SUPERVISOR_ID_LENGTH = 64;
+const SUPERVISOR_ID_PREFIX = "supervisor";
+const SUPERVISOR_ID_HASH_LENGTH = 8;
+const SUPERVISOR_ID_NAME_SLUG_LIMIT = MAX_SUPERVISOR_ID_LENGTH - SUPERVISOR_ID_PREFIX.length - SUPERVISOR_ID_HASH_LENGTH - 2;
+
 const candidateBlockPatterns = [
   /<tr\b[\s\S]*?<\/tr>/gi,
   /<article\b[\s\S]*?<\/article>/gi,
@@ -55,7 +60,7 @@ export function buildSupervisorRecord(input: SupervisorDraftInput): SupervisorRe
   const name = normalizeWhitespace(input.name);
   const topicArea = normalizeWhitespace(input.topicArea);
   const activeThesisCount = Math.max(0, Math.trunc(input.activeThesisCount));
-  const supervisorId = slugify(`${name}-${topicArea}`);
+  const supervisorId = createSupervisorId(name, topicArea);
 
   return {
     supervisorId,
@@ -259,6 +264,14 @@ function slugify(value: string): string {
     .replace(/^-|-$/g, "");
 
   return slug || `supervisor-${hashText(value).slice(0, 8)}`;
+}
+
+function createSupervisorId(name: string, topicArea: string): string {
+  const nameSlug = slugify(name).slice(0, SUPERVISOR_ID_NAME_SLUG_LIMIT).replace(/^-|-$/g, "");
+  const identityHash = hashText(`${name}\u0000${topicArea}`).slice(0, SUPERVISOR_ID_HASH_LENGTH);
+  const readableSlug = nameSlug || "record";
+
+  return `${SUPERVISOR_ID_PREFIX}-${readableSlug}-${identityHash}`;
 }
 
 function hashText(value: string): string {

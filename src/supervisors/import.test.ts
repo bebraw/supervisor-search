@@ -91,6 +91,7 @@ describe("parseSupervisorSnapshot", () => {
       activeThesisCount: 0,
       topicArea: "Coding and information theory, mathematical foundations of ICT",
     });
+    expect(supervisors.every((supervisor) => supervisor.supervisorId.length <= 64)).toBe(true);
   });
 });
 

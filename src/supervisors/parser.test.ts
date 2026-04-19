@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseSupervisorsHtml } from "./parser.ts";
+import { buildSupervisorRecord, parseSupervisorsHtml } from "./parser.ts";
 
 describe("parseSupervisorsHtml", () => {
   it("extracts supervisors from a table-like HTML snapshot", () => {
@@ -33,5 +33,18 @@ describe("parseSupervisorsHtml", () => {
       importedAt: "2026-04-19T12:00:00.000Z",
     });
     expect(supervisors[0].searchText).toContain("Currently supervising 2 active MSc theses.");
+  });
+
+  it("builds Vectorize-safe supervisor ids for long topic areas", () => {
+    const supervisor = buildSupervisorRecord({
+      name: "Supervisor 01",
+      topicArea: "Programming, Algorithms, Evolutionary computation, Computer generated and digital holography",
+      activeThesisCount: 0,
+      rawSource: "long-topic",
+      importedAt: "2026-04-19T12:00:00.000Z",
+    });
+
+    expect(supervisor.supervisorId.length).toBeLessThanOrEqual(64);
+    expect(supervisor.supervisorId).toMatch(/^supervisor-supervisor-01-[0-9a-f]{8}$/);
   });
 });
