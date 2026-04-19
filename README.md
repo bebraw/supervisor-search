@@ -22,6 +22,7 @@ Local development in this repo targets macOS. Other platforms may need script an
 
 - Start with [docs/development.md](/Users/juhovepsalainen/Projects/aalto/supervisor-search/docs/development.md) for local setup, runtime commands, import workflow, and verification.
 - The most common commands are `npm run dev`, `npm run import:supervisors -- --input /absolute/path/to/snapshot.html`, `npm run quality:gate`, and `npm run ci:local:quiet`.
+- `npm install` configures the repo-managed `pre-push` hook so `git push` runs `npm run quality:gate:fast` before code leaves your machine.
 
 ## App Surface
 
