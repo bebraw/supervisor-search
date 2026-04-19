@@ -24,6 +24,8 @@ Supervisor Search helps MSc students discover relevant thesis supervisors withou
 ### Definition of Done
 
 - [ ] `GET /` renders a basic-auth-protected supervisor search page with realtime result updates.
+- [ ] `GET /` keeps the search surface minimal, with a search field and inline typing hint instead of long explanatory help text.
+- [ ] `GET /` supports both light and dark color schemes without changing the minimal search-first layout.
 - [ ] `GET /api/search?q=...` returns ordered supervisor search results from either Vectorize or explicit local sample mode.
 - [ ] The import command performs full-snapshot parsing and Vectorize sync from a confidential local HTML file.
 - [ ] Spec and ADR updates land in the same change set as the implementation.

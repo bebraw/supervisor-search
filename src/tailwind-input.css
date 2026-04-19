@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --color-app-canvas: #f3eadf;
-  --color-app-surface: rgb(255 250 244 / 0.94);
-  --color-app-text: #231812;
-  --color-app-text-soft: #645244;
-  --color-app-accent: #0c8062;
-  --color-app-accent-strong: #075844;
-  --color-app-accent-ghost: rgb(178 255 230 / 0.75);
-  --color-app-line: rgb(35 24 18 / 0.12);
-  --color-app-ink: #13232a;
-  --color-app-ink-text: #d4e8ee;
+  --color-app-canvas: #ffffff;
+  --color-app-surface: #ffffff;
+  --color-app-text: #10253f;
+  --color-app-text-soft: #61758d;
+  --color-app-accent: #005bbb;
+  --color-app-accent-strong: #004795;
+  --color-app-accent-ghost: rgb(0 91 187 / 0.14);
+  --color-app-line: rgb(16 37 63 / 0.14);
+  --color-app-ink: #10253f;
+  --color-app-ink-text: #eef5fd;
 
-  --shadow-panel: 0 32px 80px -48px rgb(24 20 18 / 0.38);
+  --shadow-panel: 0 0 #0000;
 }
 
 /*
@@ -23,19 +23,23 @@
 @layer base {
   html {
     background: var(--color-app-canvas);
+    color-scheme: light;
   }
 
   body {
-    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     text-rendering: optimizeLegibility;
-    background:
-      radial-gradient(circle at top left, rgb(12 128 98 / 0.22), transparent 30%),
-      radial-gradient(circle at bottom right, rgb(19 35 42 / 0.12), transparent 32%),
-      linear-gradient(180deg, #f7eee3 0%, var(--color-app-canvas) 100%);
+    background: var(--color-app-canvas);
+  }
+
+  input,
+  textarea,
+  select {
+    caret-color: var(--color-app-accent);
   }
 
   ::selection {
-    background: rgb(11 110 79 / 0.18);
+    background: rgb(0 91 187 / 0.18);
   }
 
   *,
@@ -44,5 +48,28 @@
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html {
+      color-scheme: dark;
+    }
+
+    :root {
+      --color-app-canvas: #0d1724;
+      --color-app-surface: #0d1724;
+      --color-app-text: #ecf3fb;
+      --color-app-text-soft: #9fb5cc;
+      --color-app-accent: #6ab2ff;
+      --color-app-accent-strong: #8fc5ff;
+      --color-app-accent-ghost: rgb(106 178 255 / 0.2);
+      --color-app-line: rgb(236 243 251 / 0.12);
+      --color-app-ink: #0d1724;
+      --color-app-ink-text: #ecf3fb;
+    }
+
+    ::selection {
+      background: rgb(106 178 255 / 0.28);
+    }
   }
 }

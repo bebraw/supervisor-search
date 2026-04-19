@@ -6,7 +6,7 @@ describe("renderHomePage", () => {
     const html = renderHomePage();
 
     expect(html).toContain("Find an MSc Supervisor");
-    expect(html).toContain("Topic Search");
+    expect(html).toContain("Type a topic, method, or research area");
     expect(html).toContain('rel="stylesheet" href="/styles.css"');
   });
 });

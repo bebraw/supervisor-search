@@ -37,7 +37,7 @@ describe("worker", () => {
 
     const body = await response.text();
     expect(body).toContain("Find an MSc Supervisor");
-    expect(body).toContain("Topic Search");
+    expect(body).toContain("Type a topic, method, or research area");
   });
 
   it("returns a JSON health response", async () => {
@@ -100,6 +100,6 @@ describe("worker", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/css");
-    await expect(response.text()).resolves.toContain("--color-app-canvas:#f3eadf");
+    await expect(response.text()).resolves.toContain("--color-app-canvas:#fff");
   });
 });
