@@ -25,8 +25,9 @@ Local development in this repo targets macOS. Other platforms may need script an
 - Use repo-pinned CLI tools through `npx`, including `npx wrangler` for Cloudflare-based experiments.
 - Start the Worker with `npm run dev`, then open `http://127.0.0.1:8787`.
 - Rebuild the generated Tailwind stylesheet manually with `npm run build:css` when needed.
+- Before running the importer, set `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and `SUPERVISOR_SEARCH_INDEX_NAME` in your shell or `.envrc`.
 - Import a confidential supervisor snapshot with `npm run import:supervisors -- --input /absolute/path/to/snapshot.html`.
-- Dry-run the importer against the sanitized fixture with `npm run import:supervisors -- --input ./src/supervisors/fixtures/sanitized-supervisor-snapshot.html --dry-run` after configuring the normal Cloudflare import credentials.
+- Dry-run the importer against the sanitized fixture with `npm run import:supervisors -- --input ./src/supervisors/fixtures/sanitized-supervisor-snapshot.html --dry-run` after setting the same Cloudflare import variables.
 
 ## Verification
 
