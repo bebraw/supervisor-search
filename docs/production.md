@@ -118,6 +118,19 @@ Set these environment variables in your shell:
 - `SUPERVISOR_SEARCH_INDEX_NAME`
 - optional `SUPERVISOR_SEARCH_EMBEDDING_MODEL`
 
+The import token must belong to the same Cloudflare account as `CLOUDFLARE_ACCOUNT_ID`.
+
+Required Cloudflare API token permissions:
+
+- For `--dry-run`:
+  - `Workers AI - Read`
+  - `Workers AI - Edit`
+  - `Vectorize Read` or `Vectorize Write`
+- For a real import:
+  - `Workers AI - Read`
+  - `Workers AI - Edit`
+  - `Vectorize Write`
+
 Run a dry run first:
 
 ```bash

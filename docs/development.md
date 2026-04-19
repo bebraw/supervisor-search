@@ -109,6 +109,25 @@ Required environment variables for the import command:
 - `SUPERVISOR_SEARCH_INDEX_NAME`
 - Optional: `SUPERVISOR_SEARCH_EMBEDDING_MODEL`
 
+The import token must be scoped to the same Cloudflare account as `CLOUDFLARE_ACCOUNT_ID`.
+
+Required Cloudflare API token permissions:
+
+- For `--dry-run`:
+  - `Workers AI - Read`
+  - `Workers AI - Edit`
+  - `Vectorize Read` or `Vectorize Write`
+- For a real import run:
+  - `Workers AI - Read`
+  - `Workers AI - Edit`
+  - `Vectorize Write`
+
+Why:
+
+- The script calls the Workers AI REST API to create embeddings even during `--dry-run`.
+- The script calls Vectorize list/info endpoints during `--dry-run`.
+- A real import additionally calls Vectorize upsert and delete endpoints, which require `Vectorize Write`.
+
 Run the import with:
 
 ```bash
