@@ -3,9 +3,9 @@ import { createSearchText, tokenizeSearchText } from "./parser.ts";
 import type { RankedSupervisorResult, SupervisorRecord, SupervisorSearchSignals } from "./types.ts";
 
 export const SUPERVISOR_SEARCH_WEIGHTS = {
-  vectorSimilarity: 0.4,
-  topicOverlap: 0.5,
-  availability: 0.1,
+  vectorSimilarity: 0.45,
+  topicOverlap: 0.15,
+  availability: 0.4,
 } as const;
 
 const AVAILABILITY_ZERO_SCORE_AT = 10;
