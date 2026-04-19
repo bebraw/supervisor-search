@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { createSearchText, parseSupervisorsHtml, tokenizeSearchText } from "./parser.ts";
 import { buildSupervisorRecord } from "./parser.ts";
 import { createEmbedding, searchSampleSupervisors, searchSupervisors } from "./service.ts";
 
@@ -25,7 +27,7 @@ describe("searchSupervisors", () => {
         async query(vector, options) {
           expect(Array.from(vector)).toEqual([0.25, 0.75]);
           expect(options).toMatchObject({
-            topK: 20,
+            topK: 50,
             returnMetadata: "all",
           });
 
@@ -73,6 +75,40 @@ describe("searchSupervisors", () => {
     });
 
     expect(response.results[0]?.name).toBe("Leena Heikkila");
+  });
+
+  it("requests a wider candidate pool so web development matches survive retrieval", async () => {
+    const html = readFileSync("./src/supervisors/fixtures/sanitized-supervisor-snapshot.html", "utf8");
+    const supervisors = parseSupervisorsHtml(html, "2026-04-19T12:00:00.000Z");
+    const query = "web development";
+    const queryTokens = new Set(tokenizeSearchText(query));
+
+    const response = await searchSupervisors(query, {
+      AI: {
+        async run() {
+          return { data: [[0.4, 0.6]] };
+        },
+      },
+      SUPERVISOR_SEARCH_INDEX: {
+        async query(_vector, options) {
+          expect(options).toMatchObject({
+            topK: 50,
+            returnMetadata: "all",
+          });
+
+          return {
+            matches: supervisors.map((supervisor) => ({
+              id: supervisor.supervisorId,
+              score: calculateMockSimilarity(queryTokens, supervisor),
+              metadata: supervisor,
+            })),
+          };
+        },
+      },
+    });
+
+    expect(response.results.slice(0, 3).every((result) => result.topicArea.toLowerCase().includes("web development"))).toBe(true);
+    expect(response.results[0]?.activeThesisCount).toBe(3);
   });
 
   it("throws when live bindings are missing", async () => {
@@ -145,3 +181,25 @@ describe("searchSampleSupervisors", () => {
     expect(a11yResponse.results[0]?.name).toBe("Leena Heikkila");
   });
 });
+
+function calculateMockSimilarity(
+  queryTokens: Set<string>,
+  supervisor: { name: string; topicArea: string; activeThesisCount: number },
+): number {
+  if (queryTokens.size === 0) {
+    return 0;
+  }
+
+  const supervisorTokens = new Set(
+    tokenizeSearchText(createSearchText(supervisor.name, supervisor.topicArea, supervisor.activeThesisCount)),
+  );
+
+  let overlapCount = 0;
+  for (const token of queryTokens) {
+    if (supervisorTokens.has(token)) {
+      overlapCount += 1;
+    }
+  }
+
+  return overlapCount / queryTokens.size;
+}
