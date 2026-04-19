@@ -34,7 +34,9 @@ export function renderHomePage(): string {
       const queryInput = document.getElementById("supervisor-query");
       const statusElement = document.getElementById("search-status");
       const resultsElement = document.getElementById("search-results");
+      const minimumQueryLength = 2;
       let debounceHandle = null;
+      let activeController = null;
       let requestCounter = 0;
 
       function setStatus(message) {
@@ -75,12 +77,31 @@ export function renderHomePage(): string {
         const query = rawQuery.trim();
 
         if (!query) {
+          if (activeController) {
+            activeController.abort();
+            activeController = null;
+          }
           clearResults();
           setStatus("");
           return;
         }
 
+        if (query.length < minimumQueryLength) {
+          if (activeController) {
+            activeController.abort();
+            activeController = null;
+          }
+          clearResults();
+          setStatus("Type at least " + minimumQueryLength + " characters.");
+          return;
+        }
+
         const currentRequest = ++requestCounter;
+        if (activeController) {
+          activeController.abort();
+        }
+        activeController = new AbortController();
+        const currentController = activeController;
         setStatus("Searching...");
 
         try {
@@ -88,10 +109,11 @@ export function renderHomePage(): string {
             headers: {
               accept: "application/json",
             },
+            signal: currentController.signal,
           });
           const payload = await response.json();
 
-          if (currentRequest !== requestCounter) {
+          if (currentRequest !== requestCounter || currentController !== activeController) {
             return;
           }
 
@@ -110,8 +132,16 @@ export function renderHomePage(): string {
           renderResults(payload.results);
           setStatus(payload.results.length + (payload.results.length === 1 ? " result" : " results"));
         } catch (error) {
+          if (error && typeof error === "object" && "name" in error && error.name === "AbortError") {
+            return;
+          }
+
           clearResults();
           setStatus("Search failed. Try again.");
+        } finally {
+          if (currentController === activeController) {
+            activeController = null;
+          }
         }
       }
 

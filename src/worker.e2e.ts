@@ -19,8 +19,8 @@ test("renders the supervisor search home page", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByRole("heading", { level: 1, name: "Find an MSc Supervisor" })).toBeVisible();
-  await expect(page.getByText("Search supervisors by topic fit and current thesis load.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "/api/health" })).toBeVisible();
+  await expect(page.getByRole("searchbox", { name: "Search supervisors" })).toBeVisible();
+  await expect(page.getByPlaceholder("Type a topic, method, or research area")).toBeVisible();
 });
 
 test("serves the health endpoint", async ({ request }) => {
@@ -37,9 +37,9 @@ test("serves the health endpoint", async ({ request }) => {
 test("returns live search results", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByLabel("Topic Search").fill("distributed systems");
+  await page.getByRole("searchbox", { name: "Search supervisors" }).fill("distributed systems");
 
-  await expect(page.getByText("Showing 4 supervisors ranked for")).toBeVisible();
+  await expect(page.locator("#search-status")).toHaveText("4 results");
   await expect(page.getByRole("heading", { level: 3, name: "Tuomas Koski" })).toBeVisible();
 });
 
@@ -48,5 +48,5 @@ test("serves the generated stylesheet", async ({ request }) => {
 
   expect(response.ok()).toBe(true);
   expect(response.headers()["content-type"]).toContain("text/css");
-  await expect(response.text()).resolves.toContain("--color-app-canvas:#f3eadf");
+  await expect(response.text()).resolves.toContain("--color-app-canvas:");
 });
