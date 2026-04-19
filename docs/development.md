@@ -92,6 +92,8 @@ The deployed app expects a Vectorize index binding, a Workers AI binding, and ba
 
 During local development, the Worker code still runs on your machine, but Workers AI and Vectorize must connect to Cloudflare remotely. If `remote: true` is missing from either binding, local search requests fail with errors such as `Binding AI needs to be run remotely`.
 
+Do not start the app with `wrangler dev --local` when you want live search. Cloudflare's local-development docs note that `--local` disables remote bindings, which breaks both the Workers AI and Vectorize paths. Use the normal `npm run dev` script for live Cloudflare-backed search, or enable `SUPERVISOR_SEARCH_USE_SAMPLE_DATA=true` if you want a fully local sample-data session instead.
+
 For a live Vectorize-backed environment, create an index that matches the embedding model dimensions. With the default `@cf/google/embeddinggemma-300m` model, the expected shape is 768 dimensions with cosine similarity. One example command is:
 
 ```bash
