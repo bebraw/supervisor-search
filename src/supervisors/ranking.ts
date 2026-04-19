@@ -1,6 +1,6 @@
-import { expandSearchAliases } from "./aliases";
-import { createSearchText, tokenizeSearchText } from "./parser";
-import type { RankedSupervisorResult, SupervisorRecord, SupervisorSearchSignals } from "./types";
+import { expandSearchAliases } from "./aliases.ts";
+import { createSearchText, tokenizeSearchText } from "./parser.ts";
+import type { RankedSupervisorResult, SupervisorRecord, SupervisorSearchSignals } from "./types.ts";
 
 export const SUPERVISOR_SEARCH_WEIGHTS = {
   vectorSimilarity: 0.65,

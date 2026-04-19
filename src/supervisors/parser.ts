@@ -1,4 +1,4 @@
-import type { SupervisorRecord } from "./types";
+import type { SupervisorRecord } from "./types.ts";
 
 interface SupervisorDraftInput {
   name: string;

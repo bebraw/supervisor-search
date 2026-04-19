@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ensureAuthorizedRequest } from "./auth";
+import { ensureAuthorizedRequest } from "./auth.ts";
 
 const testEnv = {
   SUPERVISOR_SEARCH_BASIC_AUTH_USERNAME: "student",

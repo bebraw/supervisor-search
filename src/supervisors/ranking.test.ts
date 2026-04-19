@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildSupervisorRecord } from "./parser";
-import { rankSupervisorMatches } from "./ranking";
+import { buildSupervisorRecord } from "./parser.ts";
+import { rankSupervisorMatches } from "./ranking.ts";
 
 describe("rankSupervisorMatches", () => {
   it("prefers stronger topic overlap when vector scores are comparable", () => {

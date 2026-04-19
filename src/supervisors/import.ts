@@ -1,5 +1,5 @@
-import { parseSupervisorsHtml } from "./parser";
-import type { SupervisorRecord } from "./types";
+import { parseSupervisorsHtml } from "./parser.ts";
+import type { SupervisorRecord } from "./types.ts";
 
 export interface SupervisorVectorDocument {
   id: string;

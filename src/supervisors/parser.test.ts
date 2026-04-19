@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseSupervisorsHtml } from "./parser";
+import { parseSupervisorsHtml } from "./parser.ts";
 
 describe("parseSupervisorsHtml", () => {
   it("extracts supervisors from a table-like HTML snapshot", () => {

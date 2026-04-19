@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
-import { parseSupervisorSnapshot, planSupervisorImport } from "./import";
-import { buildSupervisorRecord } from "./parser";
+import { parseSupervisorSnapshot, planSupervisorImport } from "./import.ts";
+import { buildSupervisorRecord } from "./parser.ts";
 
 describe("planSupervisorImport", () => {
   it("plans upserts and deletions for a full-snapshot refresh", () => {

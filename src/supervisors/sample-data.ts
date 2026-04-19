@@ -1,5 +1,5 @@
-import { buildSupervisorRecord } from "./parser";
-import type { SupervisorRecord } from "./types";
+import { buildSupervisorRecord } from "./parser.ts";
+import type { SupervisorRecord } from "./types.ts";
 
 const importedAt = "2026-04-19T00:00:00.000Z";
 

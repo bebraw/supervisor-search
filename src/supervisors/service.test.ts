@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildSupervisorRecord } from "./parser";
-import { createEmbedding, searchSampleSupervisors, searchSupervisors } from "./service";
+import { buildSupervisorRecord } from "./parser.ts";
+import { createEmbedding, searchSampleSupervisors, searchSupervisors } from "./service.ts";
 
 describe("searchSupervisors", () => {
   it("uses Vectorize candidates when live bindings are configured", async () => {

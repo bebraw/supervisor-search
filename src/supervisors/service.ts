@@ -1,7 +1,7 @@
-import { expandSearchAliases } from "./aliases";
-import { createSearchText, tokenizeSearchText } from "./parser";
-import { rankSupervisorMatches, SUPERVISOR_SEARCH_WEIGHTS } from "./ranking";
-import { sampleSupervisors } from "./sample-data";
+import { expandSearchAliases } from "./aliases.ts";
+import { createSearchText, tokenizeSearchText } from "./parser.ts";
+import { rankSupervisorMatches, SUPERVISOR_SEARCH_WEIGHTS } from "./ranking.ts";
+import { sampleSupervisors } from "./sample-data.ts";
 import {
   DEFAULT_EMBEDDING_MODEL,
   DEFAULT_VECTOR_CANDIDATE_LIMIT,
@@ -11,7 +11,7 @@ import {
   type SupervisorSearchEnv,
   type SupervisorSearchResponse,
   type SupervisorVectorMetadata,
-} from "./types";
+} from "./types.ts";
 
 export async function searchSupervisors(query: string, env: SupervisorSearchEnv): Promise<SupervisorSearchResponse> {
   const expandedQuery = expandSearchAliases(query);

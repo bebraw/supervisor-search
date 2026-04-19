@@ -1,4 +1,4 @@
-import type { SupervisorSearchEnv } from "./types";
+import type { SupervisorSearchEnv } from "./types.ts";
 
 const basicAuthRealm = 'Basic realm="Supervisor Search", charset="UTF-8"';
 
