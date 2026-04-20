@@ -1,46 +1,44 @@
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "supervisor-search",
-	"main": "src/worker.ts",
-	"compatibility_date": "2026-03-28",
-	"preview_urls": true,
-	"ai": {
-		"binding": "AI",
-		"remote": true,
-	},
-	"build": {
-		"command": "npm run build:css",
-		"watch_dir": "src",
-	},
-	"rules": [
-		{
-			"type": "Text",
-			"globs": [
-				"**/*.css"
-			],
-			"fallthrough": true,
-		},
-	],
-	"vars": {
-		"SUPERVISOR_SEARCH_EMBEDDING_MODEL": "@cf/google/embeddinggemma-300m",
-	},
-	"kv_namespaces": [
-		{
-			"binding": "SUPERVISOR_SEARCH_CONFIG",
-			"id": "3fd92cc1f04c48a2b58e991d12f668a9",
-			"remote": true
-		},
-	],
-	"vectorize": [
-		{
-			"binding": "SUPERVISOR_SEARCH_INDEX",
-			"index_name": "supervisor-search",
-			"remote": true,
-		},
-		{
-			"binding": "VECTORIZE",
-			"index_name": "supervisor-search",
-			"remote": true,
-		},
-	],
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "supervisor-search",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-03-28",
+  "preview_urls": true,
+  "ai": {
+    "binding": "AI",
+    "remote": true,
+  },
+  "build": {
+    "command": "npm run build:css",
+    "watch_dir": "src",
+  },
+  "rules": [
+    {
+      "type": "Text",
+      "globs": ["**/*.css"],
+      "fallthrough": true,
+    },
+  ],
+  "vars": {
+    "SUPERVISOR_SEARCH_EMBEDDING_MODEL": "@cf/google/embeddinggemma-300m",
+  },
+  "kv_namespaces": [
+    {
+      "binding": "SUPERVISOR_SEARCH_CONFIG",
+      "id": "3fd92cc1f04c48a2b58e991d12f668a9",
+      "remote": true,
+    },
+  ],
+  "vectorize": [
+    {
+      "binding": "SUPERVISOR_SEARCH_INDEX",
+      "index_name": "supervisor-search",
+      "remote": true,
+    },
+    {
+      "binding": "VECTORIZE",
+      "index_name": "supervisor-search",
+      "remote": true,
+    },
+  ],
 }
