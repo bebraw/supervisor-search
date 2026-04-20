@@ -32,6 +32,7 @@ Skip an ADR for small, reversible, or purely tactical choices.
 | [ADR-014](./ADR-014-use-local-import-and-hybrid-vector-reranking.md)    | Accepted   | Keep imports local and rerank Vectorize candidates in Worker code for supervisor search.     |
 | [ADR-015](./ADR-015-run-the-fast-gate-on-pre-push.md)                   | Accepted   | Run the fast quality gate automatically before pushes to catch cheap failures locally.       |
 | [ADR-016](./ADR-016-propose-kv-backed-lexical-search.md)                | Proposed   | Explore replacing Workers AI plus Vectorize retrieval with a KV-backed lexical search path.  |
+| [ADR-017](./ADR-017-use-kv-for-runtime-ranking-config.md)               | Accepted   | Use a dedicated KV binding for live supervisor ranking overrides without moving search data. |
 
 ## Creating A New ADR
 

@@ -13,6 +13,7 @@ Use this file for global constraints. Use feature specs under `specs/` for domai
 - Add or update an ADR in `docs/adrs/` whenever a change introduces or changes a lasting architectural constraint, selects between credible architectural alternatives, or replaces an earlier decision.
 - Create or update the relevant feature spec in `specs/` in the same change set whenever feature behavior, contracts, workflows, or regression guardrails change.
 - Keep the quality gate green before considering a change ready.
+- Keep mutable runtime configuration separated from durable feature data. If a feature needs live operator tuning, store only the minimal config object needed for that tuning and document the boundary explicitly.
 
 ## Tooling Baseline
 

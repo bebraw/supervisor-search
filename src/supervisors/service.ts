@@ -1,6 +1,7 @@
 import { expandSearchAliases } from "./aliases.ts";
+import { DEFAULT_SUPERVISOR_SEARCH_WEIGHTS, getSupervisorSearchWeights } from "./config.ts";
 import { createSearchText, tokenizeSearchText } from "./parser.ts";
-import { rankSupervisorMatches, SUPERVISOR_SEARCH_WEIGHTS } from "./ranking.ts";
+import { rankSupervisorMatches } from "./ranking.ts";
 import { sampleSupervisors } from "./sample-data.ts";
 import {
   DEFAULT_EMBEDDING_MODEL,
@@ -15,9 +16,10 @@ import {
 
 export async function searchSupervisors(query: string, env: SupervisorSearchEnv): Promise<SupervisorSearchResponse> {
   const expandedQuery = expandSearchAliases(query);
+  const weights = await getSupervisorSearchWeights(env);
 
   if (env.SUPERVISOR_SEARCH_USE_SAMPLE_DATA === "true") {
-    return searchSampleSupervisors(query);
+    return searchSampleSupervisors(query, weights);
   }
 
   if (!env.AI || !env.SUPERVISOR_SEARCH_INDEX) {
@@ -48,8 +50,8 @@ export async function searchSupervisors(query: string, env: SupervisorSearchEnv)
     ok: true,
     query,
     source: "vectorize",
-    results: rankSupervisorMatches(query, candidates).slice(0, DEFAULT_VISIBLE_RESULT_LIMIT),
-    weights: SUPERVISOR_SEARCH_WEIGHTS,
+    results: rankSupervisorMatches(query, candidates, weights).slice(0, DEFAULT_VISIBLE_RESULT_LIMIT),
+    weights,
   };
 }
 
@@ -64,7 +66,7 @@ export async function createEmbedding(aiBinding: NonNullable<SupervisorSearchEnv
   return embedding;
 }
 
-export function searchSampleSupervisors(query: string): SupervisorSearchResponse {
+export function searchSampleSupervisors(query: string, weights = DEFAULT_SUPERVISOR_SEARCH_WEIGHTS): SupervisorSearchResponse {
   const queryTokens = new Set(tokenizeSearchText(expandSearchAliases(query)));
   const candidates = sampleSupervisors.map((supervisor) => ({
     supervisor,
@@ -75,8 +77,8 @@ export function searchSampleSupervisors(query: string): SupervisorSearchResponse
     ok: true,
     query,
     source: "sample",
-    results: rankSupervisorMatches(query, candidates).slice(0, DEFAULT_VISIBLE_RESULT_LIMIT),
-    weights: SUPERVISOR_SEARCH_WEIGHTS,
+    results: rankSupervisorMatches(query, candidates, weights).slice(0, DEFAULT_VISIBLE_RESULT_LIMIT),
+    weights,
   };
 }
 

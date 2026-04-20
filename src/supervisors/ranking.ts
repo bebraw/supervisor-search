@@ -1,18 +1,16 @@
 import { expandSearchAliases } from "./aliases.ts";
+import { DEFAULT_SUPERVISOR_SEARCH_WEIGHTS } from "./config.ts";
 import { createSearchText, tokenizeSearchText } from "./parser.ts";
-import type { RankedSupervisorResult, SupervisorRecord, SupervisorSearchSignals } from "./types.ts";
+import type { RankedSupervisorResult, SupervisorRecord, SupervisorSearchSignals, SupervisorSearchWeights } from "./types.ts";
 
-export const SUPERVISOR_SEARCH_WEIGHTS = {
-  vectorSimilarity: 0.45,
-  topicOverlap: 0.15,
-  availability: 0.4,
-} as const;
+export const SUPERVISOR_SEARCH_WEIGHTS = DEFAULT_SUPERVISOR_SEARCH_WEIGHTS;
 
 const AVAILABILITY_ZERO_SCORE_AT = 10;
 
 export function rankSupervisorMatches(
   query: string,
   candidates: Array<{ supervisor: SupervisorRecord; vectorSimilarity: number }>,
+  weights: SupervisorSearchWeights = SUPERVISOR_SEARCH_WEIGHTS,
 ): RankedSupervisorResult[] {
   return candidates
     .map(({ supervisor, vectorSimilarity }) => {
@@ -24,9 +22,9 @@ export function rankSupervisorMatches(
       const matchesQuery = signals.vectorSimilarity > 0 || signals.topicOverlap > 0;
 
       const score =
-        signals.vectorSimilarity * SUPERVISOR_SEARCH_WEIGHTS.vectorSimilarity +
-        signals.topicOverlap * SUPERVISOR_SEARCH_WEIGHTS.topicOverlap +
-        signals.availability * SUPERVISOR_SEARCH_WEIGHTS.availability;
+        signals.vectorSimilarity * weights.vectorSimilarity +
+        signals.topicOverlap * weights.topicOverlap +
+        signals.availability * weights.availability;
 
       return {
         supervisorId: supervisor.supervisorId,

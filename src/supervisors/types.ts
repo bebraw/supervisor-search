@@ -3,6 +3,12 @@ export const DEFAULT_VECTOR_CANDIDATE_LIMIT = 50;
 export const DEFAULT_VISIBLE_RESULT_LIMIT = 50;
 export const MINIMUM_QUERY_LENGTH = 2;
 
+export interface SupervisorSearchWeights {
+  vectorSimilarity: number;
+  topicOverlap: number;
+  availability: number;
+}
+
 export interface SupervisorRecord {
   supervisorId: string;
   name: string;
@@ -33,11 +39,7 @@ export interface SupervisorSearchResponse {
   query: string;
   source: "sample" | "vectorize";
   results: RankedSupervisorResult[];
-  weights: {
-    vectorSimilarity: number;
-    topicOverlap: number;
-    availability: number;
-  } | null;
+  weights: SupervisorSearchWeights | null;
 }
 
 export interface EmbeddingResponse {
@@ -70,9 +72,16 @@ export interface VectorizeBinding {
   ): Promise<VectorQueryResult>;
 }
 
+export interface KvNamespaceBinding {
+  get(key: string, type: "text"): Promise<string | null>;
+  put(key: string, value: string): Promise<void>;
+  delete(key: string): Promise<void>;
+}
+
 export interface SupervisorSearchEnv {
   AI?: AiBinding;
   SUPERVISOR_SEARCH_INDEX?: VectorizeBinding;
+  SUPERVISOR_SEARCH_CONFIG?: KvNamespaceBinding;
   SUPERVISOR_SEARCH_BASIC_AUTH_USERNAME?: string;
   SUPERVISOR_SEARCH_BASIC_AUTH_PASSWORD?: string;
   SUPERVISOR_SEARCH_EMBEDDING_MODEL?: string;

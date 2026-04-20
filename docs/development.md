@@ -76,11 +76,12 @@ The TypeScript setup is generic too. `tsconfig.json` covers repo-level `.ts` fil
 
 ### Supervisor Search
 
-The deployed app expects a Vectorize index binding, a Workers AI binding, and basic-auth credentials.
+The deployed app expects a Vectorize index binding, a Workers AI binding, and basic-auth credentials. Runtime weight editing also needs a dedicated KV binding.
 
 - In `wrangler.jsonc`, the Worker binds:
   - `AI` for embeddings through Workers AI, with `remote: true` for local `wrangler dev`
   - `SUPERVISOR_SEARCH_INDEX` for the Vectorize index, with `remote: true` for local `wrangler dev`
+  - optional `SUPERVISOR_SEARCH_CONFIG` for runtime ranking overrides through Cloudflare KV
   - `SUPERVISOR_SEARCH_EMBEDDING_MODEL` as a configurable default model id
 - In `.dev.vars`, set:
   - `SUPERVISOR_SEARCH_BASIC_AUTH_USERNAME`
@@ -90,6 +91,8 @@ The deployed app expects a Vectorize index binding, a Workers AI binding, and ba
 - Optional runtime throttling controls:
   - `SUPERVISOR_SEARCH_RATE_LIMIT_MAX_REQUESTS` sets the maximum `/api/search` requests allowed per client within the active window
   - `SUPERVISOR_SEARCH_RATE_LIMIT_WINDOW_MS` sets the throttling window duration in milliseconds
+
+If `SUPERVISOR_SEARCH_CONFIG` is not bound, `/admin` still loads but acts as a read-only view of the code defaults.
 
 During local development, the Worker code still runs on your machine, but Workers AI and Vectorize must connect to Cloudflare remotely. If `remote: true` is missing from either binding, local search requests fail with errors such as `Binding AI needs to be run remotely`.
 

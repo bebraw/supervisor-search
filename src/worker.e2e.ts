@@ -30,7 +30,7 @@ test("serves the health endpoint", async ({ request }) => {
   await expect(response.json()).resolves.toEqual({
     ok: true,
     name: "supervisor-search-worker",
-    routes: ["/", "/api/search", "/api/health"],
+    routes: ["/", "/admin", "/api/search", "/api/admin/search-weights", "/api/health"],
   });
 });
 

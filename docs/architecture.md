@@ -15,6 +15,8 @@ The application has two main runtime paths:
 1. A Cloudflare Worker that serves the protected search UI and search API.
 2. A local operator import script that parses a confidential HTML snapshot and syncs supervisors into Cloudflare Vectorize.
 
+The Worker may also read a small runtime ranking override from Cloudflare KV when the optional admin configuration binding is present.
+
 At query time, the Worker either:
 
 - uses sample data for local/test mode, or
@@ -32,13 +34,16 @@ flowchart TD
       worker[Cloudflare Worker\nsrc/worker.ts]
       ai[Workers AI\nAI binding]
       vectorize[Vectorize Index\nSUPERVISOR_SEARCH_INDEX]
+      configKv[KV Namespace\nSUPERVISOR_SEARCH_CONFIG]
     end
 
     subgraph WorkerCode[Worker Modules]
       auth[Auth\nsrc/supervisors/auth.ts]
       rate[Rate Limit\nsrc/rate-limit.ts]
       api[Search API\nsrc/api/search.ts]
+      adminApi[Admin API\nsrc/api/admin-search-weights.ts]
       service[Search Service\nsrc/supervisors/service.ts]
+      config[Runtime Config\nsrc/supervisors/config.ts]
       ranking[Ranking\nsrc/supervisors/ranking.ts]
       views[Views\nsrc/views/*]
     end
@@ -50,14 +55,20 @@ flowchart TD
     end
 
     user -->|GET /| worker
+    user -->|GET /admin| worker
     user -->|GET /api/search?q=...| worker
+    user -->|GET/PUT/DELETE /api/admin/search-weights| worker
     worker --> auth
     worker --> rate
     worker --> api
+    worker --> adminApi
     worker --> views
     api --> service
+    adminApi --> config
     service --> ai
     service --> vectorize
+    service --> configKv
+    config --> configKv
     service --> ranking
     ranking --> vectorize
 
@@ -78,9 +89,12 @@ flowchart TD
 It routes:
 
 - `GET /` to the search page
+- `GET /admin` to the runtime ranking admin page
 - `GET /styles.css` to generated CSS
 - `GET /app.js` to the browser search script
+- `GET /admin.js` to the browser admin script
 - `GET /api/search` to the JSON search endpoint
+- `GET|PUT|DELETE /api/admin/search-weights` to the runtime ranking config endpoint
 - `GET /api/health` to a minimal health response
 
 Before protected routes run, the Worker enforces:
@@ -94,7 +108,7 @@ Before protected routes run, the Worker enforces:
 `GET /api/search?q=...` flows through these modules:
 
 1. `src/api/search.ts` validates the query length and shapes the JSON response.
-2. `src/supervisors/service.ts` expands aliases and chooses the data path.
+2. `src/supervisors/service.ts` expands aliases, loads the current ranking weights, and chooses the data path.
 3. In sample mode, results come from `src/supervisors/sample-data.ts`.
 4. In live mode:
    - Workers AI creates a query embedding.
@@ -106,6 +120,14 @@ The current ranking signals are:
 - vector similarity
 - topic overlap
 - supervisor availability
+
+### 3. Runtime Ranking Admin Path
+
+`GET|PUT|DELETE /api/admin/search-weights` flows through these modules:
+
+1. `src/api/admin-search-weights.ts` enforces same-origin JSON mutations and shapes the JSON response.
+2. `src/supervisors/config.ts` validates the weight payload and reads or writes the optional KV-backed override.
+3. `src/supervisors/service.ts` uses the active weight set on subsequent search requests without a redeploy.
 
 ## Import Flow
 
@@ -146,6 +168,7 @@ Defined through `wrangler.jsonc`:
 
 - `AI` for Workers AI embeddings
 - `SUPERVISOR_SEARCH_INDEX` for Vectorize
+- optional `SUPERVISOR_SEARCH_CONFIG` for KV-backed runtime ranking overrides
 - `SUPERVISOR_SEARCH_EMBEDDING_MODEL` for the default embedding model id
 
 ### Runtime Secrets And Controls
@@ -183,5 +206,7 @@ The current architecture intentionally avoids:
 - uploading confidential HTML through the Worker
 - adding a second persistence layer such as D1 or KV for supervisor metadata
 - embedding ranking logic directly in route handlers
+
+The one explicit exception is the optional KV binding for runtime ranking configuration. That binding stores only the small mutable weight object used by `/admin`, not supervisor records or search result content.
 
 Those constraints come from the current spec and ADR set and should only change with explicit documentation updates.

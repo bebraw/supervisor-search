@@ -53,9 +53,11 @@ This repo currently expects:
 - entrypoint: `src/worker.ts`
 - Workers AI binding: `AI`
 - Vectorize binding: `SUPERVISOR_SEARCH_INDEX`
+- optional KV binding for runtime ranking overrides: `SUPERVISOR_SEARCH_CONFIG`
 - default embedding model var: `SUPERVISOR_SEARCH_EMBEDDING_MODEL`
 
 Before deploying, confirm the index name in `wrangler.jsonc` matches the production Vectorize index you intend to use.
+If you want live ranking edits through `/admin`, also create and bind a KV namespace for `SUPERVISOR_SEARCH_CONFIG`.
 
 ## 4. Create The Production Vectorize Index
 
@@ -157,8 +159,9 @@ After deploy and import:
 1. Open `/` and verify the Basic Auth challenge appears.
 2. Sign in with the configured credentials.
 3. Search a known topic and verify the returned supervisors look correct.
-4. Check `/api/health`.
-5. Confirm `styles.css` and `app.js` load successfully.
+4. If the KV binding is configured, open `/admin`, update a weight set that still totals `1.0`, and confirm a follow-up `/api/search` response returns the updated `weights`.
+5. Check `/api/health`.
+6. Confirm `styles.css`, `app.js`, and `admin.js` load successfully.
 
 ## 9. Operational Notes
 

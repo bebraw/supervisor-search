@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { DEFAULT_SUPERVISOR_SEARCH_WEIGHTS } from "./config.ts";
 import { createSearchText, parseSupervisorsHtml, tokenizeSearchText } from "./parser.ts";
 import { buildSupervisorRecord } from "./parser.ts";
 import { createEmbedding, searchSampleSupervisors, searchSupervisors } from "./service.ts";
@@ -114,6 +115,57 @@ describe("searchSupervisors", () => {
   it("throws when live bindings are missing", async () => {
     await expect(searchSupervisors("distributed systems", {})).rejects.toThrow("Supervisor search bindings are not configured.");
   });
+
+  it("uses stored runtime weights when a KV override is configured", async () => {
+    const importedAt = "2026-04-19T12:00:00.000Z";
+    const distributed = buildSupervisorRecord({
+      name: "Tuomas Koski",
+      topicArea: "Distributed systems and dependable cloud infrastructure",
+      activeThesisCount: 2,
+      rawSource: "distributed",
+      importedAt,
+    });
+
+    const response = await searchSupervisors("distributed systems", {
+      AI: {
+        async run() {
+          return { data: [[0.25, 0.75]] };
+        },
+      },
+      SUPERVISOR_SEARCH_INDEX: {
+        async query() {
+          return {
+            matches: [{ id: distributed.supervisorId, score: 0.82, metadata: distributed }],
+          };
+        },
+      },
+      SUPERVISOR_SEARCH_CONFIG: {
+        async get() {
+          return JSON.stringify({
+            version: 1,
+            updatedAt: "2026-04-20T09:00:00.000Z",
+            weights: {
+              vectorSimilarity: 0.3,
+              topicOverlap: 0.3,
+              availability: 0.4,
+            },
+          });
+        },
+        async put() {
+          throw new Error("not used");
+        },
+        async delete() {
+          throw new Error("not used");
+        },
+      },
+    });
+
+    expect(response.weights).toEqual({
+      vectorSimilarity: 0.3,
+      topicOverlap: 0.3,
+      availability: 0.4,
+    });
+  });
 });
 
 describe("createEmbedding", () => {
@@ -179,6 +231,12 @@ describe("searchSampleSupervisors", () => {
     expect(hciResponse.results[0]?.name).toBe("Leena Heikkila");
     expect(llmResponse.results[0]?.name).toBe("Aino Saarinen");
     expect(a11yResponse.results[0]?.name).toBe("Leena Heikkila");
+  });
+
+  it("falls back to the code defaults when no override exists", () => {
+    const response = searchSampleSupervisors("distributed systems");
+
+    expect(response.weights).toEqual(DEFAULT_SUPERVISOR_SEARCH_WEIGHTS);
   });
 });
 
