@@ -19,6 +19,7 @@ We will:
 - keep ingestion as a local operator command that reads a confidential HTML snapshot from disk
 - use Workers AI to create embeddings and Vectorize metadata as the only v1 storage for supervisor search records
 - use Vectorize for candidate retrieval and rerank those candidates in Worker code with explicit weighted signals for vector similarity, topic overlap, and supervisor availability
+- require explicit lexical overlap with the supervisor topic area before any candidate is returned to the user; vector similarity can influence ranking among topic matches, but cannot make a vector-only candidate visible
 
 ## Consequences
 
@@ -28,12 +29,14 @@ We will:
 - Ranking weights remain easy to inspect and change in code without changing the import format.
 - The v1 architecture stays small: one Worker, one Vectorize index, and one Workers AI binding.
 - Stored vector metadata is enough to render search results without introducing D1, KV, or Durable Objects.
+- Search results remain conservative and explainable because every visible result has a direct topic-area text match after alias expansion.
 
 ### Negative
 
 - Local operators need Cloudflare credentials with both Workers AI and Vectorize access to run imports.
 - The parser must tolerate the confidential HTML structure without help from a dedicated HTML parsing dependency.
 - Full-snapshot refreshes may rewrite many vectors even for small source changes.
+- Pure semantic matches and paraphrases without shared topic vocabulary are intentionally hidden until the topic data or alias map makes that match explicit.
 
 ## Alternatives Considered
 
@@ -48,3 +51,7 @@ Rejected because Vectorize metadata already covers the v1 result-card needs and 
 ### Vector-only ranking
 
 Rejected because availability and explicit topic tuning are part of the product requirement. A pure vector score would make those trade-offs harder to audit and adjust.
+
+### Vector-visible semantic fallback
+
+Rejected because the search surface must not show supervisors unless the query has a clear topic match. Semantic retrieval is still useful for candidate recall, but final visibility needs a deterministic topic-area gate that students and operators can inspect.

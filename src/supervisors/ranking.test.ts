@@ -53,7 +53,7 @@ describe("rankSupervisorMatches", () => {
     expect(ranked[0]?.name).toBe("Mikael Lahti");
   });
 
-  it("keeps zero-signal candidates behind relevant results", () => {
+  it("excludes candidates without topic overlap", () => {
     const importedAt = "2026-04-19T12:00:00.000Z";
     const hci = buildSupervisorRecord({
       name: "Leena Heikkila",
@@ -75,6 +75,22 @@ describe("rankSupervisorMatches", () => {
       { supervisor: hci, vectorSimilarity: 0.7 },
     ]);
 
+    expect(ranked).toHaveLength(1);
     expect(ranked[0]?.name).toBe("Leena Heikkila");
+  });
+
+  it("does not use supervisor names as topic matches", () => {
+    const importedAt = "2026-04-19T12:00:00.000Z";
+    const supervisor = buildSupervisorRecord({
+      name: "Cloud Security",
+      topicArea: "Educational technology and learner analytics",
+      activeThesisCount: 1,
+      rawSource: "name-only",
+      importedAt,
+    });
+
+    const ranked = rankSupervisorMatches("cloud security", [{ supervisor, vectorSimilarity: 0.99 }]);
+
+    expect(ranked).toEqual([]);
   });
 });

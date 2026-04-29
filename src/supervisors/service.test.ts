@@ -15,6 +15,13 @@ describe("searchSupervisors", () => {
       rawSource: "distributed",
       importedAt,
     });
+    const unrelated = buildSupervisorRecord({
+      name: "Mikael Lahti",
+      topicArea: "Cybersecurity and applied cryptography",
+      activeThesisCount: 1,
+      rawSource: "security",
+      importedAt,
+    });
 
     const response = await searchSupervisors("distributed systems", {
       AI: {
@@ -34,6 +41,7 @@ describe("searchSupervisors", () => {
 
           return {
             matches: [
+              { id: unrelated.supervisorId, score: 0.99, metadata: unrelated },
               { id: distributed.supervisorId, score: 0.82, metadata: distributed },
               { id: "bad", score: 0.99, metadata: { nope: true } },
             ],
@@ -46,6 +54,7 @@ describe("searchSupervisors", () => {
       ok: true,
       source: "vectorize",
     });
+    expect(response.results).toHaveLength(1);
     expect(response.results[0]?.name).toBe("Tuomas Koski");
   });
 
@@ -237,6 +246,12 @@ describe("searchSampleSupervisors", () => {
     const response = searchSampleSupervisors("distributed systems");
 
     expect(response.weights).toEqual(DEFAULT_SUPERVISOR_SEARCH_WEIGHTS);
+  });
+
+  it("returns no sample results without a topic match", () => {
+    const response = searchSampleSupervisors("quantum biology");
+
+    expect(response.results).toEqual([]);
   });
 });
 

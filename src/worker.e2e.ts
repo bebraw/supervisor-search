@@ -39,7 +39,7 @@ test("returns live search results", async ({ page }) => {
 
   await page.getByRole("searchbox", { name: "Search supervisors" }).fill("distributed systems");
 
-  await expect(page.locator("#search-status")).toHaveText("4 results");
+  await expect(page.locator("#search-status")).toHaveText("3 results");
   await expect(page.getByRole("heading", { level: 3, name: "Tuomas Koski" })).toBeVisible();
   await expect(page).toHaveURL(/[\?&]q=distributed\+systems|[\?&]q=distributed%20systems/);
 });
@@ -48,7 +48,7 @@ test("restores the shared query from the browser URL", async ({ page }) => {
   await page.goto("/?q=distributed%20systems");
 
   await expect(page.getByRole("searchbox", { name: "Search supervisors" })).toHaveValue("distributed systems");
-  await expect(page.locator("#search-status")).toHaveText("4 results");
+  await expect(page.locator("#search-status")).toHaveText("3 results");
   await expect(page.getByRole("heading", { level: 3, name: "Tuomas Koski" })).toBeVisible();
 });
 
@@ -59,7 +59,7 @@ test("keeps the search bar visible while scrolling through results", async ({ pa
   const searchbox = page.getByRole("searchbox", { name: "Search supervisors" });
 
   await expect(searchbox).toHaveValue("distributed systems");
-  await expect(page.locator("#search-status")).toHaveText("4 results");
+  await expect(page.locator("#search-status")).toHaveText("3 results");
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)).toBeGreaterThan(0);
 
   const initialTop = await searchbox.evaluate((element) => element.getBoundingClientRect().top);
