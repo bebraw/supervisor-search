@@ -47,7 +47,7 @@ describe("worker", () => {
 
     const body = await response.text();
     expect(body).toContain("Find an MSc Supervisor");
-    expect(body).toContain("Type a topic, method, or research area");
+    expect(body).toContain("Type a topic or research area");
   });
 
   it("returns a JSON health response", async () => {

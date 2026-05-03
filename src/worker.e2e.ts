@@ -20,7 +20,7 @@ test("renders the supervisor search home page", async ({ page }) => {
 
   await expect(page.getByRole("heading", { level: 1, name: "Find an MSc Supervisor" })).toBeVisible();
   await expect(page.getByRole("searchbox", { name: "Search supervisors" })).toBeVisible();
-  await expect(page.getByPlaceholder("Type a topic, method, or research area")).toBeVisible();
+  await expect(page.getByPlaceholder("Type a topic or research area")).toBeVisible();
 });
 
 test("serves the health endpoint", async ({ request }) => {

@@ -28,7 +28,7 @@ export function renderHomePage(): string {
           <div class="sticky top-0 z-10 -mx-3 rounded-[1.9rem] border border-app-line bg-app-canvas/92 px-3 py-3 shadow-[var(--shadow-panel)] supports-[backdrop-filter]:bg-app-canvas/72 backdrop-blur-xl">
             <label class="block" for="supervisor-query">
               <span class="sr-only">Search supervisors</span>
-              <input id="supervisor-query" name="q" type="search" autocomplete="off" spellcheck="false" placeholder="Type a topic, method, or research area" class="w-full rounded-[1.55rem] bg-app-surface px-5 py-4 text-xl text-app-text outline-none ring-1 ring-app-line transition placeholder:text-app-text-soft/72 focus:bg-app-canvas focus:ring-2 focus:ring-app-accent/35">
+              <input id="supervisor-query" name="q" type="search" autocomplete="off" spellcheck="false" placeholder="Type a topic or research area" class="w-full rounded-[1.55rem] bg-app-surface px-5 py-4 text-xl text-app-text outline-none ring-1 ring-app-line transition placeholder:text-app-text-soft/72 focus:bg-app-canvas focus:ring-2 focus:ring-app-accent/35">
             </label>
             <div id="search-status" class="mt-3 text-sm leading-6 text-app-text-soft"></div>
           </div>
