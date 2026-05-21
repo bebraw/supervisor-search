@@ -49,7 +49,7 @@ Supervisor Search helps MSc students discover relevant thesis supervisors withou
 - Imported `supervisorId` values must remain within the current Vectorize identifier length limit.
 - HTML responses must ship with restrictive browser security headers, and client-side search code must load from a same-origin script asset so the CSP can keep `script-src 'self'`.
 - Search throttling must stay enabled in configured environments, with per-client limits tunable through environment variables instead of hard-coded route edits.
-- Live Vectorize search must retrieve a broad enough candidate pool before reranking to avoid obvious topical misses on common multi-word queries such as `web development`.
+- Live Vectorize search must retrieve a broad enough candidate pool before reranking to avoid obvious topical misses on common queries such as `web development` and normalized singular/plural terms like `algorithm` and `algorithms`.
 - Vector similarity may retrieve and rank candidates, but it must not make a supervisor visible without a clear topic-area token match after conservative token normalization such as common singular/plural equivalence.
 - Search ranking must keep topical relevance ahead of thesis-load differences, while still using lower active thesis counts as a strong tie-breaker and scoring factor among relevant matches.
 - Admin write operations must stay behind the existing authentication boundary, reject cross-origin browser mutations, and validate that the stored weight set stays within `[0,1]` and totals `1.0`.

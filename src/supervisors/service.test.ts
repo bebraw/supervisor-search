@@ -35,7 +35,7 @@ describe("searchSupervisors", () => {
         async query(vector, options) {
           expect(Array.from(vector)).toEqual([0.25, 0.75]);
           expect(options).toMatchObject({
-            topK: 50,
+            topK: 100,
             returnMetadata: "all",
           });
 
@@ -102,7 +102,7 @@ describe("searchSupervisors", () => {
       SUPERVISOR_SEARCH_INDEX: {
         async query(_vector, options) {
           expect(options).toMatchObject({
-            topK: 50,
+            topK: 100,
             returnMetadata: "all",
           });
 
@@ -119,6 +119,49 @@ describe("searchSupervisors", () => {
 
     expect(response.results.slice(0, 3).every((result) => result.topicArea.toLowerCase().includes("web development"))).toBe(true);
     expect(response.results[0]?.activeThesisCount).toBe(3);
+  });
+
+  it("retrieves enough candidates for normalized singular and plural topic matches", async () => {
+    const importedAt = "2026-04-19T12:00:00.000Z";
+    const unrelated = Array.from({ length: 60 }, (_, index) =>
+      buildSupervisorRecord({
+        name: `Supervisor ${index.toString().padStart(2, "0")}`,
+        topicArea: `Distributed systems and cloud infrastructure ${index}`,
+        activeThesisCount: 2,
+        rawSource: `unrelated-${index}`,
+        importedAt,
+      }),
+    );
+    const algorithms = buildSupervisorRecord({
+      name: "Ada Korhonen",
+      topicArea: "Algorithms, theoretical computer science, and algorithm engineering",
+      activeThesisCount: 1,
+      rawSource: "algorithms",
+      importedAt,
+    });
+    const candidates = [...unrelated, algorithms];
+
+    const response = await searchSupervisors("algorithm", {
+      AI: {
+        async run() {
+          return { data: [[0.4, 0.6]] };
+        },
+      },
+      SUPERVISOR_SEARCH_INDEX: {
+        async query(_vector, options) {
+          return {
+            matches: candidates.slice(0, options?.topK).map((supervisor) => ({
+              id: supervisor.supervisorId,
+              score: 0.8,
+              metadata: supervisor,
+            })),
+          };
+        },
+      },
+    });
+
+    expect(response.results).toHaveLength(1);
+    expect(response.results[0]?.name).toBe("Ada Korhonen");
   });
 
   it("throws when live bindings are missing", async () => {
