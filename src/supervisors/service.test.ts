@@ -35,7 +35,7 @@ describe("searchSupervisors", () => {
         async query(vector, options) {
           expect(Array.from(vector)).toEqual([0.25, 0.75]);
           expect(options).toMatchObject({
-            topK: 100,
+            topK: 50,
             returnMetadata: "all",
           });
 
@@ -102,7 +102,7 @@ describe("searchSupervisors", () => {
       SUPERVISOR_SEARCH_INDEX: {
         async query(_vector, options) {
           expect(options).toMatchObject({
-            topK: 100,
+            topK: 50,
             returnMetadata: "all",
           });
 
@@ -123,7 +123,7 @@ describe("searchSupervisors", () => {
 
   it("retrieves enough candidates for normalized singular and plural topic matches", async () => {
     const importedAt = "2026-04-19T12:00:00.000Z";
-    const unrelated = Array.from({ length: 60 }, (_, index) =>
+    const unrelated = Array.from({ length: 49 }, (_, index) =>
       buildSupervisorRecord({
         name: `Supervisor ${index.toString().padStart(2, "0")}`,
         topicArea: `Distributed systems and cloud infrastructure ${index}`,

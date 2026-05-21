@@ -37,6 +37,7 @@ We will:
 - The parser must tolerate the confidential HTML structure without help from a dedicated HTML parsing dependency.
 - Full-snapshot refreshes may rewrite many vectors even for small source changes.
 - Pure semantic matches and paraphrases without shared topic vocabulary are intentionally hidden until the topic data or alias map makes that match explicit.
+- Candidate recall is constrained by Vectorize's maximum `topK` for queries that return full metadata, because v1 stores renderable supervisor records directly in Vectorize metadata.
 
 ## Alternatives Considered
 
