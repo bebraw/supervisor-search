@@ -79,6 +79,22 @@ describe("rankSupervisorMatches", () => {
     expect(ranked[0]?.name).toBe("Leena Heikkila");
   });
 
+  it("matches singular queries against common plural topic terms", () => {
+    const importedAt = "2026-04-19T12:00:00.000Z";
+    const algorithms = buildSupervisorRecord({
+      name: "Ada Korhonen",
+      topicArea: "Algorithms, theoretical computer science, algorithm engineering",
+      activeThesisCount: 1,
+      rawSource: "algorithms",
+      importedAt,
+    });
+
+    const ranked = rankSupervisorMatches("algorithm", [{ supervisor: algorithms, vectorSimilarity: 0.8 }]);
+
+    expect(ranked).toHaveLength(1);
+    expect(ranked[0]?.name).toBe("Ada Korhonen");
+  });
+
   it("does not use supervisor names as topic matches", () => {
     const importedAt = "2026-04-19T12:00:00.000Z";
     const supervisor = buildSupervisorRecord({

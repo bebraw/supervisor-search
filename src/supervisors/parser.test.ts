@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSupervisorRecord, parseSupervisorsHtml } from "./parser.ts";
+import { buildSupervisorRecord, parseSupervisorsHtml, tokenizeSearchText } from "./parser.ts";
 
 describe("parseSupervisorsHtml", () => {
   it("extracts supervisors from a table-like HTML snapshot", () => {
@@ -46,5 +46,21 @@ describe("parseSupervisorsHtml", () => {
 
     expect(supervisor.supervisorId.length).toBeLessThanOrEqual(64);
     expect(supervisor.supervisorId).toMatch(/^supervisor-supervisor-01-[0-9a-f]{8}$/);
+  });
+});
+
+describe("tokenizeSearchText", () => {
+  it("normalizes common plural topic terms", () => {
+    expect(tokenizeSearchText("Algorithms, systems, and learning technologies")).toEqual([
+      "algorithm",
+      "system",
+      "and",
+      "learning",
+      "technology",
+    ]);
+  });
+
+  it("preserves short tokens and words ending in double s", () => {
+    expect(tokenizeSearchText("AI UX fairness class")).toEqual(["ai", "ux", "fairness", "class"]);
   });
 });

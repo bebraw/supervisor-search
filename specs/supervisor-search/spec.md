@@ -31,7 +31,7 @@ Supervisor Search helps MSc students discover relevant thesis supervisors withou
 - [ ] `GET /` keeps the search input and inline status visible with a sticky header treatment while result cards scroll below.
 - [ ] `GET /` reflects the current search query in the browser URL so shared or refreshed pages restore the same query.
 - [ ] `GET /api/search?q=...` returns ordered supervisor search results from either Vectorize or explicit local sample mode.
-- [ ] `GET /api/search?q=...` returns no visible results unless each result has explicit lexical overlap with the supervisor topic area after alias expansion.
+- [ ] `GET /api/search?q=...` returns no visible results unless each result has explicit lexical overlap with the supervisor topic area after alias expansion and conservative token normalization.
 - [ ] `GET /api/search?q=...` expands common CS aliases such as `HCI`, `LLM`, `ML`, and `A11Y` so abbreviated queries still match the underlying topic terms.
 - [ ] `GET /api/search?q=...` applies per-client throttling and returns `429` with retry guidance when a client exceeds the configured local rate limit.
 - [ ] `GET|PUT|DELETE /api/admin/search-weights` returns, updates, and clears the live ranking weights without redeploying when the KV config binding is available.
@@ -50,7 +50,7 @@ Supervisor Search helps MSc students discover relevant thesis supervisors withou
 - HTML responses must ship with restrictive browser security headers, and client-side search code must load from a same-origin script asset so the CSP can keep `script-src 'self'`.
 - Search throttling must stay enabled in configured environments, with per-client limits tunable through environment variables instead of hard-coded route edits.
 - Live Vectorize search must retrieve a broad enough candidate pool before reranking to avoid obvious topical misses on common multi-word queries such as `web development`.
-- Vector similarity may retrieve and rank candidates, but it must not make a supervisor visible without a clear topic-area token match.
+- Vector similarity may retrieve and rank candidates, but it must not make a supervisor visible without a clear topic-area token match after conservative token normalization such as common singular/plural equivalence.
 - Search ranking must keep topical relevance ahead of thesis-load differences, while still using lower active thesis counts as a strong tie-breaker and scoring factor among relevant matches.
 - Admin write operations must stay behind the existing authentication boundary, reject cross-origin browser mutations, and validate that the stored weight set stays within `[0,1]` and totals `1.0`.
 - Any committed HTML import fixture must remain sanitized, anonymized, and free of authenticated page state or direct staff contact details.

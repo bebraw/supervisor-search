@@ -84,7 +84,30 @@ export function normalizeWhitespace(value: string): string {
 
 export function tokenizeSearchText(value: string): string[] {
   const normalized = value.toLowerCase().replace(/[^a-z0-9]+/gi, " ");
-  return normalized.split(/\s+/).filter((token) => token.length > 1);
+  return normalized
+    .split(/\s+/)
+    .map(normalizeSearchToken)
+    .filter((token) => token.length > 1);
+}
+
+function normalizeSearchToken(token: string): string {
+  if (token.length <= 3 || token.endsWith("ss")) {
+    return token;
+  }
+
+  if (token.endsWith("ies") && token.length > 4) {
+    return `${token.slice(0, -3)}y`;
+  }
+
+  if (/(?:ches|shes|xes|zes)$/.test(token)) {
+    return token.slice(0, -2);
+  }
+
+  if (token.endsWith("s")) {
+    return token.slice(0, -1);
+  }
+
+  return token;
 }
 
 function collectCandidateBlocks(html: string): string[] {
